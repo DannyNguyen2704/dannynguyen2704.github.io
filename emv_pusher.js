@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EMV Pusher
 // @namespace    http://tampermonkey.net/
-// @version      1.9
+// @version      1.10
 // @description  EMV Pusher
 // @updateURL    https://dannynguyen2704.github.io/emv_pusher.js
 // @downloadURL  https://dannynguyen2704.github.io/emv_pusher.js
@@ -40,6 +40,17 @@
         let runButton = document.createElement('button');
         runButton.textContent = 'Run';
 
+        let intervalInput = document.createElement('input');
+        intervalInput.type = 'number';
+        intervalInput.min = '1';
+        intervalInput.value = localStorage.getItem('postInterval') || '3';
+        intervalInput.style.width = '50px';
+        intervalInput.style.marginLeft = '10px';
+
+        let intervalLabel = document.createElement('label');
+        intervalLabel.textContent = ' Interval (seconds): ';
+        intervalLabel.appendChild(intervalInput);
+
         let progressText = document.createElement('span');
         progressText.id = 'progressText';
         progressText.textContent = 'Progress: 0/0  0%';
@@ -48,6 +59,7 @@
 
         container.appendChild(uploadButton);
         container.appendChild(runButton);
+        container.appendChild(intervalLabel);
         container.appendChild(progressText);
         document.body.appendChild(container);
 
@@ -68,11 +80,15 @@
 
         runButton.addEventListener('click', function() {
             let storedData = JSON.parse(localStorage.getItem('autoPostData') || '[]');
+            let currentIndex = parseInt(localStorage.getItem('autoPostIndex') || '0');
+            let interval = parseInt(intervalInput.value) || 3;
+            localStorage.setItem('postInterval', interval);
+
             if (storedData.length === 0) {
                 console.log('Empty content!');
                 return;
             }
-            postNext(storedData, 0);
+            postNext(storedData, currentIndex, interval);
         });
     }
 
@@ -83,7 +99,7 @@
         progressText.textContent = `Progress: ${index}/${total} ${progressBar} ${percent}%`;
     }
 
-    function postNext(data, index) {
+    function postNext(data, index, interval) {
         if (index >= data.length) {
             console.log('All posts sent!');
             return;
@@ -120,7 +136,8 @@
                                 button.click();
                                 localStorage.setItem('autoPostIndex', index + 1);
                                 updateProgress(index + 1, data.length);
-                                setTimeout(() => postNext(data, index + 1), 5000 + Math.random() * 10000); // Dãn cách 5-10s
+                                let delay = interval * 1000 + Math.random() * 2000;
+                                setTimeout(() => postNext(data, index + 1, interval), delay); // Dãn cách theo cấu hình
 
                             }
                         });
