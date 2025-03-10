@@ -120,7 +120,7 @@
                                 button.click();
                                 localStorage.setItem('autoPostIndex', index + 1);
                                 updateProgress(index + 1, data.length);
-                                setTimeout(() => postNext(data, index + 1), 5000 + Math.random() * 30000); // Dãn cách 5-30s
+                                setTimeout(() => postNext(data, index + 1), 5000 + Math.random() * 10000); // Dãn cách 5-10s
 
                             }
                         });
