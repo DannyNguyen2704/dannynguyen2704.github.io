@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EMV Pusher
 // @namespace    http://tampermonkey.net/
-// @version      1.10
+// @version      1.11
 // @description  EMV Pusher
 // @updateURL    https://dannynguyen2704.github.io/emv_pusher.js
 // @downloadURL  https://dannynguyen2704.github.io/emv_pusher.js
@@ -12,16 +12,6 @@
 
 (function() {
     'use strict';
-    const tag =
-`@panly.v @ysl
-#YSL
-#SaintLaurentxMilk
-#YvesSaintLaurent
-#SaintLaurent
-#MilkPansa
-#ParisFashionWeek
-#PFW25
-`
 
     function createUI() {
         let container = document.createElement('div');
@@ -30,38 +20,107 @@
         container.style.right = '10px';
         container.style.background = 'white';
         container.style.padding = '10px';
-        container.style.border = '1px solid black';
+        container.style.border = '1px solid #ccc';
+        container.style.borderRadius = '8px';
+        container.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.1)';
         container.style.zIndex = '10000';
+        container.style.width = '260px';
+        container.style.transition = 'width 0.3s ease, opacity 0.3s ease';
+        let toggleButton = document.createElement('button');
+        toggleButton.innerHTML = '▼';
+        toggleButton.style.display = 'block';
+        toggleButton.style.width = '30px';
+        toggleButton.style.height = '30px';
+        toggleButton.style.background = '#007bff';
+        toggleButton.style.color = 'white';
+        toggleButton.style.border = 'none';
+        toggleButton.style.borderRadius = '50%';
+        toggleButton.style.cursor = 'pointer';
+        toggleButton.style.fontSize = '16px';
+        toggleButton.style.marginBottom = '5px';
+
+        let contentDiv = document.createElement('div');
+        contentDiv.style.display = 'block';
+        contentDiv.style.opacity = '1';
+        contentDiv.style.transition = 'opacity 0.3s ease';
 
         let uploadButton = document.createElement('input');
         uploadButton.type = 'file';
         uploadButton.accept = '.txt';
+        uploadButton.style.display = 'block';
+        uploadButton.style.marginBottom = '10px';
 
         let runButton = document.createElement('button');
         runButton.textContent = 'Run';
 
-        let intervalInput = document.createElement('input');
-        intervalInput.type = 'number';
-        intervalInput.min = '1';
-        intervalInput.value = localStorage.getItem('postInterval') || '3';
-        intervalInput.style.width = '50px';
-        intervalInput.style.marginLeft = '10px';
+        let intervalContainer = document.createElement('div');
+        intervalContainer.style.display = 'flex';
+        intervalContainer.style.alignItems = 'center';
+        intervalContainer.style.marginTop = '10px';
 
         let intervalLabel = document.createElement('label');
-        intervalLabel.textContent = ' Interval (seconds): ';
-        intervalLabel.appendChild(intervalInput);
+        intervalLabel.textContent = '⏳ Interval (s): ';
+        intervalLabel.style.marginRight = '5px';
 
-        let progressText = document.createElement('span');
-        progressText.id = 'progressText';
-        progressText.textContent = 'Progress: 0/0  0%';
-        progressText.style.display = 'block';
-        progressText.style.marginTop = '10px';
+        let intervalSlider = document.createElement('input');
+        intervalSlider.type = 'range';
+        intervalSlider.min = '1';
+        intervalSlider.max = '180';
+        intervalSlider.value = localStorage.getItem('postInterval') || '3';
+        intervalSlider.style.width = '60px';
+        intervalSlider.style.margin = '0 5px';
 
-        container.appendChild(uploadButton);
-        container.appendChild(runButton);
-        container.appendChild(intervalLabel);
-        container.appendChild(progressText);
+        let intervalValue = document.createElement('span');
+        intervalValue.textContent = intervalSlider.value + 's';
+        intervalValue.style.fontWeight = 'bold';
+
+        intervalSlider.addEventListener('input', function() {
+            intervalValue.textContent = intervalSlider.value + 's';
+            localStorage.setItem('postInterval', intervalSlider.value);
+        });
+
+        intervalContainer.appendChild(intervalLabel);
+        intervalContainer.appendChild(intervalSlider);
+        intervalContainer.appendChild(intervalValue);
+
+        let progressContainer = document.createElement('div');
+        progressContainer.style.width = '100%';
+        progressContainer.style.background = '#eee';
+        progressContainer.style.borderRadius = '5px';
+        progressContainer.style.marginTop = '10px';
+        progressContainer.style.overflow = 'hidden';
+
+        let progressBar = document.createElement('div');
+        progressBar.id = 'progressBar';
+        progressBar.style.width = '0%';
+        progressBar.style.height = '12px';
+        progressBar.style.background = '#007bff';
+        progressBar.style.transition = 'width 0.5s ease-in-out';
+
+        progressContainer.appendChild(progressBar);
+
+        contentDiv.appendChild(uploadButton);
+        contentDiv.appendChild(runButton);
+        contentDiv.appendChild(intervalContainer);
+        contentDiv.appendChild(progressContainer);
+
+        container.appendChild(toggleButton);
+        container.appendChild(contentDiv);
         document.body.appendChild(container);
+
+        toggleButton.addEventListener('click', function() {
+            if (contentDiv.style.display === 'none') {
+                contentDiv.style.display = 'block';
+                contentDiv.style.opacity = '1';
+                container.style.width = '260px';
+                toggleButton.innerHTML = '▼';
+            } else {
+                contentDiv.style.opacity = '0';
+                setTimeout(() => contentDiv.style.display = 'none', 300);
+                container.style.width = '40px';
+                toggleButton.innerHTML = '▶';
+            }
+        });
 
         uploadButton.addEventListener('change', function(event) {
             let file = event.target.files[0];
@@ -81,7 +140,7 @@
         runButton.addEventListener('click', function() {
             let storedData = JSON.parse(localStorage.getItem('autoPostData') || '[]');
             let currentIndex = parseInt(localStorage.getItem('autoPostIndex') || '0');
-            let interval = parseInt(intervalInput.value) || 3;
+            let interval = parseInt(intervalSlider.value) || 3;
             localStorage.setItem('postInterval', interval);
 
             if (storedData.length === 0) {
@@ -93,12 +152,19 @@
     }
 
     function updateProgress(index, total) {
-        let progressText = document.getElementById('progressText');
+        let progressBar = document.getElementById('progressBar');
         let percent = total > 0 ? ((index / total) * 100).toFixed(2) : 0;
-        let progressBar = '-'.repeat(Math.round(percent / 5));
-        progressText.textContent = `Progress: ${index}/${total} ${progressBar} ${percent}%`;
+        progressBar.style.width = percent + '%';
     }
 
+    function waitForPageLoad(callback) {
+        let checkInterval = setInterval(() => {
+            if (document.readyState === "complete") {
+                clearInterval(checkInterval);
+                callback();
+            }
+        }, 500);
+    }
     function postNext(data, index, interval) {
         if (index >= data.length) {
             console.log('All posts sent!');
@@ -148,16 +214,6 @@
             typeCharacter();
         }
     }
-
-    function waitForPageLoad(callback) {
-        let checkInterval = setInterval(() => {
-            if (document.readyState === "complete") {
-                clearInterval(checkInterval);
-                callback();
-            }
-        }, 500);
-    }
-
     waitForPageLoad(() => {
         createUI();
     });
