@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EMV Pusher
 // @namespace    http://tampermonkey.net/
-// @version      1.12
+// @version      1.12.1
 // @description  EMV Pusher
 // @updateURL    https://dannynguyen2704.github.io/releases/v1_12/emv_pusher_112.js
 // @downloadURL  https://dannynguyen2704.github.io/releases/v1_12/emv_pusher_112.js
@@ -22,7 +22,7 @@
         container.style.position = 'fixed';
         container.style.top = '10px';
         container.style.right = '10px';
-        container.style.background = 'white';
+        container.style.background = 'black';
         container.style.padding = '10px';
         container.style.border = '1px solid #ccc';
         container.style.borderRadius = '8px';
@@ -30,6 +30,8 @@
         container.style.zIndex = '10000';
         container.style.width = '260px';
         container.style.transition = 'width 0.3s ease, opacity 0.3s ease';
+        container.style.color = 'cornflowerblue';
+
         let toggleButton = document.createElement('button');
         toggleButton.innerHTML = '▼';
         toggleButton.style.display = 'block';
@@ -53,6 +55,8 @@
         uploadButton.accept = '.txt';
         uploadButton.style.display = 'block';
         uploadButton.style.marginBottom = '10px';
+        uploadButton.style.color = 'black';
+        uploadButton.style.fontFamily = 'san-serif';
 
         let runButton = document.createElement('button');
         runButton.textContent = 'Run';
@@ -65,6 +69,7 @@
         let intervalLabel = document.createElement('label');
         intervalLabel.textContent = '⏳ Interval (s): ';
         intervalLabel.style.marginRight = '5px';
+        intervalLabel.style.color = 'cornflowerblue';
 
         let intervalSlider = document.createElement('input');
         intervalSlider.type = 'range';
@@ -118,7 +123,6 @@
         fileNameDisplay.id = 'fileNameDisplay';
         fileNameDisplay.style.marginBottom = '10px';
         fileNameDisplay.style.fontSize = '12px';
-        fileNameDisplay.style.color = '#555';
         fileNameDisplay.textContent = `📄 File: ${localStorage.getItem('uploadedFileName') || 'No file uploaded'}`;
 
         contentDiv.appendChild(fileNameDisplay);
