@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EMV Pusher
 // @namespace    http://tampermonkey.net/
-// @version      1.11
+// @version      1.12
 // @description  EMV Pusher
 // @updateURL    https://dannynguyen2704.github.io/releases/v1_12/emv_pusher_112.js
 // @downloadURL  https://dannynguyen2704.github.io/releases/v1_12/emv_pusher_112.js
