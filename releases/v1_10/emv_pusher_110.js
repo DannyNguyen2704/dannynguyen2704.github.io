@@ -3,15 +3,16 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.10
 // @description  EMV Pusher
-// @updateURL    https://dannynguyen2704.github.io/emv_pusher.js
-// @downloadURL  https://dannynguyen2704.github.io/emv_pusher.js
+// @updateURL    https://dannynguyen2704.github.io/releases/v1_10/emv_pusher_110.js
+// @downloadURL  https://dannynguyen2704.github.io/releases/v1_10/emv_pusher_110.js
 // @author       Danny
 // @match        *://www.instagram.com/*
 // @grant        none
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
+
     function createUI() {
         let container = document.createElement('div');
         container.style.position = 'fixed';
@@ -52,11 +53,11 @@
         container.appendChild(progressText);
         document.body.appendChild(container);
 
-        uploadButton.addEventListener('change', function(event) {
+        uploadButton.addEventListener('change', function (event) {
             let file = event.target.files[0];
             if (file) {
                 let reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     let lines = e.target.result.split('\n').map(line => line.trim()).filter(line => line);
                     localStorage.setItem('autoPostData', JSON.stringify(lines));
                     localStorage.setItem('autoPostIndex', '0');
@@ -67,7 +68,7 @@
             }
         });
 
-        runButton.addEventListener('click', function() {
+        runButton.addEventListener('click', function () {
             let storedData = JSON.parse(localStorage.getItem('autoPostData') || '[]');
             let currentIndex = parseInt(localStorage.getItem('autoPostIndex') || '0');
             let interval = parseInt(intervalInput.value) || 3;
@@ -96,8 +97,8 @@
 
         let textarea = document.querySelector('textarea');
         if (textarea) {
-            textarea.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-            textarea.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+            textarea.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+            textarea.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
             textarea.focus();
             textarea.setSelectionRange(textarea.value.length, textarea.value.length);
 
@@ -107,11 +108,16 @@
                 let content = data[index];
                 if (j < content.length) {
                     let char = content[j];
-                    let eventOptions = { key: char, keyCode: char.charCodeAt(0), which: char.charCodeAt(0), bubbles: true };
+                    let eventOptions = {
+                        key: char,
+                        keyCode: char.charCodeAt(0),
+                        which: char.charCodeAt(0),
+                        bubbles: true
+                    };
 
                     textarea.dispatchEvent(new KeyboardEvent('keydown', eventOptions));
                     document.execCommand('insertText', false, char);
-                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    textarea.dispatchEvent(new Event('input', {bubbles: true}));
                     textarea.dispatchEvent(new KeyboardEvent('keyup', eventOptions));
 
                     j++;
